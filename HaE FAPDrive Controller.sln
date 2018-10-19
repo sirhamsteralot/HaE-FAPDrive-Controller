@@ -5,7 +5,21 @@ VisualStudioVersion = 15.0.28010.2046
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HaE FAPDrive Controller", "HaE FAPDrive Controller\HaE FAPDrive Controller.csproj", "{4AFC7213-BA0F-49D8-9A74-9287BA1E6B98}"
 EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "HaE GridTerminalSystemUtils", "..\..\..\MDK_Projects\Shared Projects\HaE GridTerminalSystemUtils\HaE GridTerminalSystemUtils.shproj", "{EC6DFC99-0769-41FC-96A3-029FBEB3A7A1}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "HaE Scheduler", "..\..\..\MDK_Projects\Shared Projects\HaE Scheduler\HaE Scheduler.shproj", "{32A2473A-3095-4B7B-8362-456C72003FEB}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "HaE Serialization", "..\..\..\MDK_Projects\Shared Projects\HaE Serialization\HaE Serialization.shproj", "{633D8B24-4B3B-4C26-9480-DBA498CC7831}"
+EndProject
 Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		..\..\..\MDK_Projects\Shared Projects\HaE Scheduler\HaE Scheduler.projitems*{32a2473a-3095-4b7b-8362-456c72003feb}*SharedItemsImports = 13
+		..\..\..\MDK_Projects\Shared Projects\HaE GridTerminalSystemUtils\HaE GridTerminalSystemUtils.projitems*{4afc7213-ba0f-49d8-9a74-9287ba1e6b98}*SharedItemsImports = 4
+		..\..\..\MDK_Projects\Shared Projects\HaE Scheduler\HaE Scheduler.projitems*{4afc7213-ba0f-49d8-9a74-9287ba1e6b98}*SharedItemsImports = 4
+		..\..\..\MDK_Projects\Shared Projects\HaE Serialization\HaE Serialization.projitems*{4afc7213-ba0f-49d8-9a74-9287ba1e6b98}*SharedItemsImports = 4
+		..\..\..\MDK_Projects\Shared Projects\HaE Serialization\HaE Serialization.projitems*{633d8b24-4b3b-4c26-9480-dba498cc7831}*SharedItemsImports = 13
+		..\..\..\MDK_Projects\Shared Projects\HaE GridTerminalSystemUtils\HaE GridTerminalSystemUtils.projitems*{ec6dfc99-0769-41fc-96a3-029fbeb3a7a1}*SharedItemsImports = 13
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
 	EndGlobalSection

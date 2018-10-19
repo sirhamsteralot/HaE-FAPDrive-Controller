@@ -19,57 +19,118 @@ namespace IngameScript
 {
     partial class Program : MyGridProgram
     {
-        // This file contains your actual script.
-        //
-        // You can either keep all your code here, or you can create separate
-        // code files to make your program easier to navigate while coding.
-        //
-        // In order to add a new utility class, right-click on your project, 
-        // select 'New' then 'Add Item...'. Now find the 'Space Engineers'
-        // category under 'Visual C# Items' on the left hand side, and select
-        // 'Utility Class' in the main area. Name it in the box below, and
-        // press OK. This utility class will be merged in with your code when
-        // deploying your final script.
-        //
-        // You can also simply create a new utility class manually, you don't
-        // have to use the template if you don't want to. Just do so the first
-        // time to see what a utility class looks like.
+        #region settings
+        public INISerializer serializer = new INISerializer("Global Settings");
+        public string groupTag { get { return (string)serializer.GetValue("groupTag"); }}
+        public string sideATag { get { return (string)serializer.GetValue("sideATag"); } }
+        public string sideBTag { get { return (string)serializer.GetValue("sideBTag"); } }
+        public string shipControllerName { get { return (string)serializer.GetValue("shipControllerName"); } }
+        public bool invertThrottle { get { return (bool)serializer.GetValue("invertThrottle"); } }
+        public float throttleincrements { get { return (float)serializer.GetValue("throttleincrements"); } }
+        #endregion
+
+        public List<Fapdrive> fapDrives = new List<Fapdrive>();
+        public float currentThrottle = 0;
+        IMyShipController controller;
+
 
         public Program()
         {
-            // The constructor, called only once every session and
-            // always before any other method is called. Use it to
-            // initialize your script. 
-            //     
-            // The constructor is optional and can be removed if not
-            // needed.
-            // 
-            // It's recommended to set RuntimeInfo.UpdateFrequency 
-            // here, which will allow your script to run itself without a 
-            // timer block.
+            #region settings
+            serializer.AddValue("groupTag", x => x, "[Fapdrive]");
+            serializer.AddValue("sideATag", x => x, "[A]");
+            serializer.AddValue("sideBTag", x => x, "[B]");
+            serializer.AddValue("shipControllerName", x => x, "Control");
+            serializer.AddValue("throttleincrements", x => float.Parse(x), 0.05f);
+            serializer.AddValue("invertThrottle", x => bool.Parse(x), true);
+
+            if (Me.CustomData == "")
+            {
+                string temp = Me.CustomData;
+                serializer.FirstSerialization(ref temp);
+                Me.CustomData = temp;
+            }
+            else
+            {
+                serializer.DeSerialize(Me.CustomData);
+            }
+            #endregion
+
+            List<IMyBlockGroup> tempList = new List<IMyBlockGroup>();
+            GridTerminalSystem.GetBlockGroups(tempList, x => x.Name.Contains(groupTag));
+            foreach (var group in tempList)
+            {
+                Fapdrive drive = new Fapdrive(group, sideATag, sideBTag);
+                Echo($"Registering fapdrive with:\n{drive.driveRotors.Count} rotors and {drive.sideA.Count + drive.sideB.Count} containers");
+                fapDrives.Add(drive);
+            }
+
+            controller = GridTerminalSystem.GetBlockWithName(shipControllerName) as IMyShipController;
+
+            Echo($"Drives found: {fapDrives.Count}");
+
+            Runtime.UpdateFrequency = UpdateFrequency.Update1;
         }
 
         public void Save()
         {
-            // Called when the program needs to save its state. Use
-            // this method to save your state to the Storage field
-            // or some other means. 
-            // 
-            // This method is optional and can be removed if not
-            // needed.
+
         }
 
         public void Main(string argument, UpdateType updateSource)
         {
-            // The main entry point of the script, invoked every time
-            // one of the programmable block's Run actions are invoked,
-            // or the script updates itself. The updateSource argument
-            // describes where the update came from. Be aware that the
-            // updateSource is a  bitfield  and might contain more than 
-            // one update type.
-            // 
-            // The method itself is required, but the arguments above
-            // can be removed if not needed.
+            SetThrottleFromInput();
+
+            if ((updateSource & (UpdateType.Terminal | UpdateType.Trigger)) != 0)
+            {
+                if (argument == "++")
+                {
+                    ThrottleDrives(currentThrottle + throttleincrements);
+                } else if (argument == "--")
+                {
+                    ThrottleDrives(currentThrottle - throttleincrements);
+                }
+
+                float throttleVal = 0;
+                if (float.TryParse(argument, out throttleVal))
+                {
+                    ThrottleDrives(throttleVal);
+                }
+            } else
+            {
+                foreach (var drive in fapDrives)
+                {
+                    drive.Main();
+                }
+            }
+        }
+
+        public void SetThrottleFromInput()
+        {
+            Vector3D controlVector = controller.MoveIndicator;
+
+            double forward = controlVector.Dot(Vector3D.Forward);
+
+            if (forward > 0)
+            {
+                ThrottleDrives(currentThrottle + throttleincrements);
+            } else if (forward < 0)
+            {
+                ThrottleDrives(currentThrottle - throttleincrements);
+            }
+        }
+
+        public void ThrottleDrives(float value)
+        {
+            currentThrottle = MyMath.Clamp(value, -1, 1);
+
+            if (invertThrottle)
+                value = -value;
+
+            foreach (var drive in fapDrives)
+            {
+                drive.SetThrust(value);
+            }
         }
     }
 }
