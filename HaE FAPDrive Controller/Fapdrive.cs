@@ -65,15 +65,10 @@ namespace IngameScript
                 this.throttlePercentage = MyMath.Clamp(throttlePercentage, 0f, 1f);
             }
 
-            int waitTicks = 0;
             public IEnumerator<bool> ThrustSequence()
             {
                 while (true)
                 {
-                    waitTicks = 0;
-                    while (waitTicks++ < 60 * (1 - throttlePercentage) || throttlePercentage == 0)
-                        yield return true;
-
                     if (reverse)
                     {
                         MoveMaterials(false);
@@ -102,25 +97,32 @@ namespace IngameScript
                     {
                         if (toSideB)
                         {
-                            MoveStuff(contA, contB);
+                            MoveStuff(contA, contB, false);
                         } else
                         {
-                            MoveStuff(contB, contA);
+                            MoveStuff(contB, contA, true);
                         }
                     }
                 }
             }
 
-            public void MoveStuff(IMyCargoContainer source, IMyCargoContainer dest)
+            public void MoveStuff(IMyCargoContainer source, IMyCargoContainer dest, bool fullAmount)
             {
                 IMyInventory src = source.GetInventory();
                 IMyInventory dst = dest.GetInventory();
 
-
-                int itemCount = src.GetItems().Count;
+                var items = src.GetItems();
+                int itemCount = items.Count;
                 for (int i = 0; i < itemCount; i++)
                 {
-                    src.TransferItemTo(dst, i);
+                    if (!fullAmount)
+                    {
+                        var itemstomove = items[i].Amount * (float)throttlePercentage;
+                        src.TransferItemTo(dst, i, null, true, itemstomove);
+                    } else
+                    {
+                        src.TransferItemTo(dst, i);
+                    }
                 }
             }
 

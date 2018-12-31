@@ -96,7 +96,7 @@ namespace IngameScript
                 {
                     ThrottleDrives(throttleVal);
                 }
-            } else
+            } else if (currentThrottle != 0)
             {
                 foreach (var drive in fapDrives)
                 {
@@ -117,6 +117,9 @@ namespace IngameScript
             } else if (forward < 0)
             {
                 ThrottleDrives(currentThrottle - throttleincrements);
+            } else if (forward == 0)
+            {
+                ThrottleDrives(0);
             }
         }
 
