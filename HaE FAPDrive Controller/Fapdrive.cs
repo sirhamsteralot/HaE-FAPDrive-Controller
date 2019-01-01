@@ -23,11 +23,12 @@ namespace IngameScript
         {
             private Scheduler internalScheduler;
 
-            public List<IMyMotorStator> driveRotors;
-            public List<IMyCargoContainer> sideA;
-            public List<IMyCargoContainer> sideB;
+            private List<IMyMotorStator> driveRotors;
+            private List<IMyCargoContainer> sideA;
+            private List<IMyCargoContainer> sideB;
 
             public double throttlePercentage = 0;
+            public Vector3D driveDirection;
             public bool reverse = false;
 
             public Fapdrive(IMyBlockGroup group, string sideATag, string sideBTag)
@@ -42,6 +43,8 @@ namespace IngameScript
 
                 group.GetBlocksOfType(sideA, x => x.CustomName.Contains(sideATag));
                 group.GetBlocksOfType(sideB, x => x.CustomName.Contains(sideBTag));
+
+                driveDirection = driveRotors.First().WorldMatrix.Up;
 
                 internalScheduler.AddTask(ThrustSequence());
             }
