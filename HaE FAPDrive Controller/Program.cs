@@ -33,6 +33,8 @@ namespace IngameScript
         public float currentThrottle = 0;
         IMyShipController controller;
 
+        public bool init = false;
+
 
         public Program()
         {
@@ -56,6 +58,11 @@ namespace IngameScript
             }
             #endregion
 
+            Runtime.UpdateFrequency = UpdateFrequency.Update1;
+        }
+
+        public void Init()
+        {
             List<IMyBlockGroup> tempList = new List<IMyBlockGroup>();
             GridTerminalSystem.GetBlockGroups(tempList, x => x.Name.Contains(groupTag));
             foreach (var group in tempList)
@@ -68,8 +75,7 @@ namespace IngameScript
             controller = GridTerminalSystem.GetBlockWithName(shipControllerName) as IMyShipController;
 
             Echo($"Drives found: {fapDrives.Count}");
-
-            Runtime.UpdateFrequency = UpdateFrequency.Update1;
+            init = true;
         }
 
         public void Save()
@@ -79,6 +85,12 @@ namespace IngameScript
 
         public void Main(string argument, UpdateType updateSource)
         {
+            if (!init)
+            {
+                Init();
+                return;
+            }
+
             SetThrottleFromInput();
 
             if ((updateSource & (UpdateType.Terminal | UpdateType.Trigger)) != 0)

@@ -23,9 +23,9 @@ namespace IngameScript
         {
             private Scheduler internalScheduler;
 
-            private List<IMyMotorStator> driveRotors;
-            private List<IMyCargoContainer> sideA;
-            private List<IMyCargoContainer> sideB;
+            public List<IMyMotorStator> driveRotors;
+            public List<IMyCargoContainer> sideA;
+            public List<IMyCargoContainer> sideB;
 
             public double throttlePercentage = 0;
             public Vector3D driveDirection;
